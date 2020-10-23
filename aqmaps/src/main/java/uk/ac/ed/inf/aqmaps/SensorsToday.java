@@ -5,9 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import com.google.gson.Gson;
 
@@ -41,7 +39,15 @@ public class SensorsToday {
     }
     
     public String createUrlString() {
-        String url = "http://localhost:80/maps/" + todaysDate.getYear() + "/" + todaysDate.getMonth() + "/" + todaysDate.getDay() + "/air-quality-data.json";
+        String month = "" + todaysDate.getMonth();
+        String day = "" + todaysDate.getDay();
+        if(todaysDate.getMonth() < 10) {
+             month = "0"+ todaysDate.getMonth(); 
+        }
+        if(todaysDate.getDay() < 10) {
+            day = "0"+ todaysDate.getDay(); 
+        }
+        String url = "http://localhost:80/maps/" + todaysDate.getYear() + "/" + month + "/" + day + "/air-quality-data.json";
         return url; 
     }
     

@@ -7,8 +7,8 @@ public class App
 
     public static void main( String[] args )
     {
-        //assign command line args to vars 
-        Date todaysDate = new Date(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2])); 
+        //assign command line args to vars  
+        Date todaysDate = new Date(Integer.parseInt(args[2]), Integer.parseInt(args[1]), Integer.parseInt(args[0])); 
         double initialLat = Double.parseDouble(args[3]); 
         double initialLong = Double.parseDouble(args[4]); 
         int randomSeed = Integer.parseInt(args[5]); 
