@@ -1,5 +1,6 @@
 package uk.ac.ed.inf.aqmaps;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class App 
@@ -16,6 +17,12 @@ public class App
         
         //get sensors for today
         SensorsToday tSensors = new SensorsToday(todaysDate); 
+        ArrayList<Sensor> sensors = tSensors.getTodaysSensors(); 
+        
+        Sensor firstSensor = sensors.get(0);
+        firstSensor.ThreeWordsToLongLat();
+       
+
         
     }
 }
