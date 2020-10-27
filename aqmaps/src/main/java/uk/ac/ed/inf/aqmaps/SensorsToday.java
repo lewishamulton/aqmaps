@@ -34,8 +34,7 @@ public class SensorsToday {
         }
         String todaysSensorData = response.body(); 
         
-        parseSensorData(todaysSensorData); 
-        sensorReadings = getSensorReadings(); 
+        parseSensorData(todaysSensorData);  
     }
     
     public String createUrlString() {
@@ -56,9 +55,10 @@ public class SensorsToday {
         todaysSensors = new Gson().fromJson(sData, listType);
     }
     
-    public double[] getSensorReadings() {
-        double[] returnval = new double[2]; 
-        return returnval; 
+    public ArrayList<Sensor> getTodaysSensors(){
+        return todaysSensors; 
     }
+    
+
 
 }
