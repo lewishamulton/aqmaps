@@ -7,6 +7,8 @@ public class Move {
     private double currLong; 
     private double currLat; 
     
+    private Direction currentDirection; 
+    
     private String sensorLocation; 
 
 }

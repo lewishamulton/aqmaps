@@ -16,8 +16,7 @@ import com.google.gson.reflect.TypeToken;
 public class SensorsToday {
     private ArrayList<Sensor> todaysSensors = new ArrayList<Sensor>(); 
     private Date todaysDate; 
-    private double[] sensorReadings; 
-    
+
     public SensorsToday(Date tDate) {
         todaysDate = tDate; 
         
@@ -35,6 +34,8 @@ public class SensorsToday {
         String todaysSensorData = response.body(); 
         
         parseSensorData(todaysSensorData);  
+        
+      
     }
     
     public String createUrlString() {
