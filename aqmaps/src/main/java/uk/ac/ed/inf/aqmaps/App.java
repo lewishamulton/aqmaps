@@ -19,8 +19,18 @@ public class App
         SensorsToday tSensors = new SensorsToday(todaysDate); 
         ArrayList<Sensor> sensors = tSensors.getTodaysSensors(); 
         
-        Sensor firstSensor = sensors.get(0);
-        firstSensor.ThreeWordsToLongLat();
+        for(int i=0; i < sensors.size(); i ++) {
+            sensors.get(i).ThreeWordsToLongLat();
+        }
+       
+        
+        DroneFlightPath dPath = new DroneFlightPath(todaysDate,sensors,initialLat,initialLong); 
+        dPath.calculateFlightPath();
+        
+        for(int i =0; i < sensors.size(); i++) {
+            System.out.println("working?");
+            System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
+        }
        
 
         

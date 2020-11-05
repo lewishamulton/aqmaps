@@ -10,5 +10,23 @@ public class Move {
     private Direction currentDirection; 
     
     private String sensorLocation; 
+    
+    public double getPrevLong() {
+        return prevLong; 
+    }
+    
+    public String getSensorLocation() {
+        return sensorLocation; 
+    }
+    public Move(double pLong,double pLat,double cLong,double cLat,Direction cDirection,String sLocation) {
+        prevLong = pLong; 
+        prevLat = pLat; 
+        currLong = cLong; 
+        currLat = cLat; 
+        currentDirection = cDirection; 
+        sensorLocation = sLocation; 
+         
+    }
+    
 
 }

@@ -63,6 +63,14 @@ public class Sensor {
     public String getThreeWordsLoc() {
         return location; 
     }
+    
+    public boolean equals(Sensor otherSensor) {
+        if(this.location == otherSensor.location) {
+            return true; 
+        } else {
+            return false; 
+        }
+    }
 
     private String getThreeWordsUrl() {
         //Java regex to break up 3words location 
@@ -75,6 +83,7 @@ public class Sensor {
     private void parseThreeWords(String tWords) {
          sensorWord =new Gson().fromJson(tWords, Words.class);
     }
+    
 
 
 }
