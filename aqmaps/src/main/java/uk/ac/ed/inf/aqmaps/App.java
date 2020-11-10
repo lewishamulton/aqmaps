@@ -24,12 +24,17 @@ public class App
         }
        
         
-        DroneFlightPath dPath = new DroneFlightPath(todaysDate,sensors,initialLat,initialLong); 
-        dPath.calculateFlightPath();
+        DroneFlightPath dPath = new DroneFlightPath(todaysDate,sensors,initialLong,initialLat); 
+        double testLat = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lat; 
+        double testLong = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lng; 
         
-        for(int i =0; i < sensors.size(); i++) {
-            System.out.println("working?");
-            System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
+        dPath.calculateFlightPath();
+        for(int i =0; i <150; i++) {
+              System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
+               System.out.println(dPath.getMovesMade().get(i).getLongLat()[0]); 
+               System.out.println(dPath.getMovesMade().get(i).getLongLat()[1]); 
+               System.out.println(dPath.getMovesMade().get(i).getDirection().directionDegree); 
+               System.out.println("*************"); 
         }
        
 

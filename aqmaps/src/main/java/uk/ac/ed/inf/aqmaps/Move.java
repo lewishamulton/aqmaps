@@ -18,6 +18,12 @@ public class Move {
     public String getSensorLocation() {
         return sensorLocation; 
     }
+    public double[] getLongLat() {
+        return new double[] {currLong,currLat}; 
+    }
+    public Direction getDirection() {
+        return currentDirection; 
+    }
     public Move(double pLong,double pLat,double cLong,double cLat,Direction cDirection,String sLocation) {
         prevLong = pLong; 
         prevLat = pLat; 
