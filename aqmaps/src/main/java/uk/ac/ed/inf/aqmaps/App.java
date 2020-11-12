@@ -27,9 +27,8 @@ public class App
         DroneFlightPath dPath = new DroneFlightPath(todaysDate,sensors,initialLong,initialLat); 
         double testLat = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lat; 
         double testLong = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lng; 
-        
         dPath.calculateFlightPath();
-        for(int i =0; i <150; i++) {
+        for(int i =0; i <dPath.getMovesMade().size(); i++) {
               System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
                System.out.println(dPath.getMovesMade().get(i).getLongLat()[0]); 
                System.out.println(dPath.getMovesMade().get(i).getLongLat()[1]); 
