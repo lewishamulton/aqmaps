@@ -49,34 +49,60 @@ public class DroneFlightPath {
             Sensor nearestSensor = getNearestSensor(currLong,currLat,sensorsRemaining); 
 
            
+            //gets sensor Longitude and Latitude
             double sLong = nearestSensor.sensorWord.coordinates.lng; 
             double sLat = nearestSensor.sensorWord.coordinates.lat; 
+            
+            //calculates angle drone will fly in 
             Direction d = calculateNewDroneAngle(sLong,sLat,currLong,currLat); 
+            
+ 
             double[] newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat); 
             newLong = newCoords[0]; 
             newLat = newCoords[1]; 
             
+            //if drone is in range of sensor make a move then take reading
             if(inRangeSensor(newLong,newLat,nearestSensor) == true) {
                 Move nextMove = new Move(currLong,currLat,newLong,newLat,d,nearestSensor.getThreeWordsLoc()); 
                 movesMade.add(nextMove); 
                 sensorsRemaining.remove(nearestSensor); 
+                noMovesMade ++; 
 
-                
+             //else make a move with no sensor    
             } else {
                 Move nextMove = new Move(currLong,currLat,newLong,newLat,d,null);
-                System.out.println("Sensor long:" + nearestSensor.sensorWord.coordinates.lng + " Lat:" + nearestSensor.sensorWord.coordinates.lat); 
-                System.out.println("Drone long:"+ currLong + " Lat:"+currLat); 
                 movesMade.add(nextMove); 
+                noMovesMade ++; 
             }
+            
             currLong = newLong; 
             currLat= newLat; 
-            
-            
+           
         }
+        
+        //to return drone to original location, treats original location 
+        //as one last sensor to fly to 
+        if(sensorsRemaining.size() <1 && noMovesMade <150) {
+            
+            Sensor returnLocation = new Sensor(initialLong,initialLat); 
+                
+            while(inRangeSensor(currLong,currLat,returnLocation) == false) {
+                
+                Direction d = calculateNewDroneAngle(initialLong,initialLat,currLong,currLat); 
+                double [] newCoords = calculateNewDronePosition(d,returnLocation,currLong,currLat); 
+                
+                Move nextMove = new Move(currLong,currLat,newCoords[0],newCoords[1],d,null); 
+                movesMade.add(nextMove); 
+                
+                currLong = newCoords[0]; 
+                currLat = newCoords[1]; 
+            }
+        } 
         
         
         
     }
+    
     
     public Sensor getNearestSensor(double cLong, double cLat,ArrayList<Sensor> sRemaining) {
         //cLong,cLat are current longitude and latitudes 
@@ -94,23 +120,18 @@ public class DroneFlightPath {
         return sRemaining.get(MinIndex); 
     }
     
+    
     public double calculateEuclidDist(double xLong, double xLat, double yLong, double yLat) {
         //long = x direction
         //lat = y direction 
         return  Math.sqrt((xLong - yLong) * (xLong - yLong) + (xLat - yLat) * (xLat - yLat));
     }
-    
-    private ArrayList<Move> noOfMovesNeeded(double cLong,double cLat, Sensor nextSensor){
-        return null;      
-    }
-    
-    
+     
     
     //this method calculates the angle of some multiple of 10 closest to the angle needed for the
     //drone on the same line as the sensor
     public Direction  calculateNewDroneAngle(double sensX, double sensY, double droneX, double droneY) {
-        //the angle calculated here assumes north at 0degrees, and calculates the angle going clockwise from that 
-        //this is converted to east at 0degrees later in the method 
+      
         double ratio = calculateEuclidDist(droneX,droneY,sensX,droneY)/calculateEuclidDist(droneX,droneY,sensX,sensY); 
         double droneSensorAngle  = Math.acos(ratio); 
         droneSensorAngle = Math.toDegrees(droneSensorAngle); 
@@ -167,9 +188,9 @@ public class DroneFlightPath {
         double newLong;  
         double newLat; 
         
-        //since angle is measured from east going clockwise need to adjust to get angle depending on which quadrant 
-        //the straight line between the drone's current position and closest sensor points to 
-        //this includes whether it is a positive or negative change in long/lat
+        /*since angle is measured from east going clockwise need to adjust to get angle depending on which quadrant 
+        the straight line between the drone's current position and closest sensor points to 
+        this includes whether it is a positive or negative change in long/lat */ 
         if(sY > cY) {
             //top left quadrant
       
@@ -212,14 +233,13 @@ public class DroneFlightPath {
         
     }
     
+    
     public boolean inRangeSensor(double newLong, double newLat, Sensor cSensor) {
         
         double sensorLong = cSensor.sensorWord.coordinates.lng; 
         double sensorLat = cSensor.sensorWord.coordinates.lat; 
         
         double range = calculateEuclidDist(newLong,newLat,sensorLong,sensorLat); 
-        String str = String.format("%.25f",range); 
-        System.out.println("Range: " + str + "\n"); 
         if(range <= 0.0002) {
             return true; 
         } else {

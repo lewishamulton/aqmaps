@@ -28,9 +28,13 @@ public class Sensor {
        battery = 0.0; 
        reading = 0.0; 
        location = ""; 
-         
-        
+    }
     
+    //for when Sensor is return location 
+    public Sensor(double initLong, double initLat) {
+        sensorWord = new Words(); 
+        sensorWord.coordinates.lat = initLat; 
+        sensorWord.coordinates.lng = initLong; 
     }
     
     public void ThreeWordsToLongLat() {

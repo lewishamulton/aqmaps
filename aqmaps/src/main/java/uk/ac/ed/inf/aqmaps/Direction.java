@@ -12,7 +12,7 @@ public class Direction {
         if((dir % 10) == 0 && dir <=350 && dir >=0) {
             this.directionDegree = dir; 
         } else {
-            throw new IllegalArgumentException("Direction " + dir  +" is not valid. Directions must be between 0 350 in multiples of 10"); 
+            throw new IllegalArgumentException("Direction " + dir  +" is not valid. Directions must be between 0/350 in multiples of 10"); 
         }
     }
     
@@ -21,7 +21,7 @@ public class Direction {
         if((dir % 10) == 0 && dir <=350 && dir >=0) {
             this.directionDegree = dir; 
         } else {
-            throw new IllegalArgumentException("Direction " + dir  +" is not valid. Directions must be between 0 350 in multiples of 10"); 
+            throw new IllegalArgumentException("Direction " + dir  +" is not valid. Directions must be between 0/350 in multiples of 10"); 
         }
     }
 

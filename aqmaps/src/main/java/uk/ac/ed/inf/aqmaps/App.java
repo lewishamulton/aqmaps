@@ -28,13 +28,16 @@ public class App
         double testLat = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lat; 
         double testLong = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lng; 
         dPath.calculateFlightPath();
+        System.out.println(dPath.getMovesMade().size());
         for(int i =0; i <dPath.getMovesMade().size(); i++) {
-              System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
+               System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
                System.out.println(dPath.getMovesMade().get(i).getLongLat()[0]); 
                System.out.println(dPath.getMovesMade().get(i).getLongLat()[1]); 
                System.out.println(dPath.getMovesMade().get(i).getDirection().directionDegree); 
                System.out.println("*************"); 
         }
+        
+       
        
 
         
