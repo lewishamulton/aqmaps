@@ -11,14 +11,17 @@ public class DroneFlightPath {
     private Date flightDate; 
     private double initialLong; 
     private double initialLat; 
+    private int portNo; 
+    private NoFlyZone nFZ = new NoFlyZone(); 
     
     public final double r = 0.0003; 
     
-    public DroneFlightPath(Date flDate, ArrayList<Sensor> tSensors,double iLong, double iLat) {
+    public DroneFlightPath(Date flDate, ArrayList<Sensor> tSensors,double iLong, double iLat, int portN) {
         flightDate = flDate; 
         todaysSensors = tSensors; 
         initialLong = iLong; 
         initialLat = iLat;
+        portNo = portN; 
         movesMade = new ArrayList<Move>(); 
     }
     
@@ -50,20 +53,34 @@ public class DroneFlightPath {
 
            
             //gets sensor Longitude and Latitude
-            double sLong = nearestSensor.sensorWord.coordinates.lng; 
-            double sLat = nearestSensor.sensorWord.coordinates.lat; 
+            var sLong = nearestSensor.sensorWord.coordinates.lng; 
+            var sLat = nearestSensor.sensorWord.coordinates.lat; 
             
             //calculates angle drone will fly in 
             Direction d = calculateNewDroneAngle(sLong,sLat,currLong,currLat); 
             
  
             double[] newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat); 
+          
+            
+            //checks if new position is in a NoFlyZone
+            boolean inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
+            
+            //if so changes direction until it is not flying in a NoFlyZone
+            while(inNFZ == true) {
+                //increments direction by 10 
+                d.setDirection((d.directionDegree+10)); 
+                newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
+                inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
+            }
+            
+            //once correct coords have been found they become new long/lat of drone 
             newLong = newCoords[0]; 
             newLat = newCoords[1]; 
             
             //if drone is in range of sensor make a move then take reading
             if(inRangeSensor(newLong,newLat,nearestSensor) == true) {
-                Move nextMove = new Move(currLong,currLat,newLong,newLat,d,nearestSensor.getThreeWordsLoc()); 
+                var nextMove = new Move(currLong,currLat,newLong,newLat,d,nearestSensor.getThreeWordsLoc()); 
                 movesMade.add(nextMove); 
                 sensorsRemaining.remove(nearestSensor); 
                 noMovesMade ++; 
@@ -84,7 +101,7 @@ public class DroneFlightPath {
         //as one last sensor to fly to 
         if(sensorsRemaining.size() <1 && noMovesMade <150) {
             
-            Sensor returnLocation = new Sensor(initialLong,initialLat); 
+            var returnLocation = new Sensor(initialLong,initialLat); 
                 
             while(inRangeSensor(currLong,currLat,returnLocation) == false) {
                 
@@ -106,12 +123,12 @@ public class DroneFlightPath {
     
     public Sensor getNearestSensor(double cLong, double cLat,ArrayList<Sensor> sRemaining) {
         //cLong,cLat are current longitude and latitudes 
-        int MinIndex = 0; 
-        double currentMin = 100.0; 
+        var MinIndex = 0; 
+        var currentMin = 100.0; 
         for(int i =0; i < sRemaining.size(); i ++) {
-            double nLong = sRemaining.get(i).sensorWord.coordinates.lng; 
-            double nLat = sRemaining.get(i).sensorWord.coordinates.lat; 
-            double eDist = calculateEuclidDist(cLong,cLat,nLong,nLat); 
+            var nLong = sRemaining.get(i).sensorWord.coordinates.lng; 
+            var nLat = sRemaining.get(i).sensorWord.coordinates.lat; 
+            var eDist = calculateEuclidDist(cLong,cLat,nLong,nLat); 
             if(eDist < currentMin) {
                 currentMin = eDist; 
                 MinIndex = i; 
@@ -133,7 +150,7 @@ public class DroneFlightPath {
     public Direction  calculateNewDroneAngle(double sensX, double sensY, double droneX, double droneY) {
       
         double ratio = calculateEuclidDist(droneX,droneY,sensX,droneY)/calculateEuclidDist(droneX,droneY,sensX,sensY); 
-        double droneSensorAngle  = Math.acos(ratio); 
+        var droneSensorAngle  = Math.acos(ratio); 
         droneSensorAngle = Math.toDegrees(droneSensorAngle); 
         
         if(sensY > droneY) {
@@ -160,8 +177,8 @@ public class DroneFlightPath {
         
         //find nearest multiple of 10 degrees 
         //rounds dronesensorAngle to nearest int 
-        int roundedDSAngle = (int)Math.round(droneSensorAngle); 
-        int remainder = roundedDSAngle  % 10; 
+        var roundedDSAngle = (int)Math.round(droneSensorAngle); 
+        var remainder = roundedDSAngle  % 10; 
         int newDroneAngle; 
         
         
@@ -179,9 +196,9 @@ public class DroneFlightPath {
     public double[] calculateNewDronePosition(Direction dDirect,Sensor sClose, double cX, double cY) {
         
         //x coord or longitude of closest sensor
-        double sX = sClose.sensorWord.coordinates.lng;
+        var sX = sClose.sensorWord.coordinates.lng;
         //y coord or latitude of closest sensor 
-        double sY = sClose.sensorWord.coordinates.lat; 
+        var sY = sClose.sensorWord.coordinates.lat; 
         
         double angle = dDirect.directionDegree; 
 
@@ -236,8 +253,8 @@ public class DroneFlightPath {
     
     public boolean inRangeSensor(double newLong, double newLat, Sensor cSensor) {
         
-        double sensorLong = cSensor.sensorWord.coordinates.lng; 
-        double sensorLat = cSensor.sensorWord.coordinates.lat; 
+        var sensorLong = cSensor.sensorWord.coordinates.lng; 
+        var  sensorLat = cSensor.sensorWord.coordinates.lat; 
         
         double range = calculateEuclidDist(newLong,newLat,sensorLong,sensorLat); 
         if(range <= 0.0002) {
