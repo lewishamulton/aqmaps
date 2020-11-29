@@ -18,23 +18,23 @@ import com.mapbox.turf.TurfJoins;
 
 
 public class NoFlyZone {
-    ArrayList<Polygon> noFlyZones; 
+    ArrayList<Polygon> noFlyZones = new ArrayList<Polygon>(); 
     
     public NoFlyZone() {
        String url = "http://localhost:80/buildings/no-fly-zones.geojson"; 
-       System.out.println(url); 
       //get no-fly-zones polygons
-       HttpClient client = HttpClient.newHttpClient();
-       HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build(); 
+       var client = HttpClient.newHttpClient();
+       var request = HttpRequest.newBuilder().uri(URI.create(url)).build(); 
        HttpResponse<String> response = null;
        try {
            response = client.send(request, BodyHandlers.ofString());
+           System.out.println(response); 
        } catch (IOException e) {
            e.printStackTrace();
        } catch (InterruptedException e) {
            e.printStackTrace();
        }
-       String geoJsonString = response.body(); 
+       var geoJsonString = response.body(); 
        parseGeoJson(geoJsonString); 
        
     }
@@ -45,10 +45,8 @@ public class NoFlyZone {
         List<Feature> fList = fc.features(); 
         //goes through each feature to see if polygon
         for(int i = 0; i < fList.size(); i ++) {
-             Geometry g =  fList.get(i).geometry(); 
-            if(g instanceof Polygon) {
-                noFlyZones.add((Polygon)g); 
-            }
+             var g =  fList.get(i).geometry(); 
+             noFlyZones.add((Polygon)g); 
         }  
     }
     

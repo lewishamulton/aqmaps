@@ -108,7 +108,19 @@ public class DroneFlightPath {
                 Direction d = calculateNewDroneAngle(initialLong,initialLat,currLong,currLat); 
                 double [] newCoords = calculateNewDronePosition(d,returnLocation,currLong,currLat); 
                 
-                Move nextMove = new Move(currLong,currLat,newCoords[0],newCoords[1],d,null); 
+                
+                //checks if new position is in a NoFlyZone
+                boolean inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
+                
+                //if so changes direction until it is not flying in a NoFlyZone
+                while(inNFZ == true) {
+                    //increments direction by 10 
+                    d.setDirection((d.directionDegree+10)); 
+                    inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
+                }
+                
+                
+                var nextMove = new Move(currLong,currLat,newCoords[0],newCoords[1],d,null); 
                 movesMade.add(nextMove); 
                 
                 currLong = newCoords[0]; 
@@ -257,13 +269,30 @@ public class DroneFlightPath {
         var  sensorLat = cSensor.sensorWord.coordinates.lat; 
         
         double range = calculateEuclidDist(newLong,newLat,sensorLong,sensorLat); 
-        if(range <= 0.0002) {
+        if(range < 0.0002) {
             return true; 
         } else {
             return false; 
+        }      
+    }
+    
+    /*checks if next drone move is legal (doesn't go over any noFlyZones/boundaries) and finds 
+     * closest drone move (in terms of direction) if move isn't legal 
+     */
+    private Direction isALegalDroneMove(Direction d, double newLong, double newLat, double currLong, double currLat, Sensor nearestSensor) {
+        
+      //checks if new position is in a NoFlyZone
+        boolean inNFZ = nFZ.inNoFlyZone(newLong, newLat); 
+        
+        //if so changes direction until it is not flying in a NoFlyZone
+        while(inNFZ == true) {
+            //increments direction by 10 
+            d.setDirection((d.directionDegree+10)); 
+            var newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
+            inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
         }
         
-        
+        return d; 
         
     }
     

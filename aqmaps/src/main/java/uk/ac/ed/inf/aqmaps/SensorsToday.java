@@ -16,13 +16,14 @@ import com.google.gson.reflect.TypeToken;
 public class SensorsToday {
     private ArrayList<Sensor> todaysSensors = new ArrayList<Sensor>(); 
     private Date todaysDate; 
+    private int portNo; 
 
-    public SensorsToday(Date tDate) {
+    public SensorsToday(Date tDate,int pNo) {
         todaysDate = tDate; 
-        
+        portNo = pNo; 
         //getSensorsForToday
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(createUrlString())).build(); 
+        var client = HttpClient.newHttpClient();
+        var request = HttpRequest.newBuilder().uri(URI.create(createUrlString())).build(); 
         HttpResponse<String> response = null;
         try {
             response = client.send(request, BodyHandlers.ofString());
@@ -47,7 +48,7 @@ public class SensorsToday {
         if(todaysDate.getDay() < 10) {
             day = "0"+ todaysDate.getDay(); 
         }
-        String url = "http://localhost:80/maps/" + todaysDate.getYear() + "/" + month + "/" + day + "/air-quality-data.json";
+        String url = "http://localhost:" + portNo + "/maps/" + todaysDate.getYear() + "/" + month + "/" + day + "/air-quality-data.json";
         return url; 
     }
     

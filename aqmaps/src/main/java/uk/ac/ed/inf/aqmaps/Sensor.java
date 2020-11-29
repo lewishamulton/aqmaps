@@ -37,10 +37,10 @@ public class Sensor {
         sensorWord.coordinates.lng = initLong; 
     }
     
-    public void ThreeWordsToLongLat() {
+    public void ThreeWordsToLongLat(int pNo) {
         //Start Http Request to get longLat Details from words folder
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(getThreeWordsUrl())).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(getThreeWordsUrl(pNo))).build();
         //initialise response String
         HttpResponse<String> response = null;
         try {
@@ -76,7 +76,7 @@ public class Sensor {
         }
     }
 
-    private String getThreeWordsUrl() {
+    private String getThreeWordsUrl(int portNo) {
         //Java regex to break up 3words location 
         String delims = "[.]"; 
         String[] threeArray = location.split(delims); 
