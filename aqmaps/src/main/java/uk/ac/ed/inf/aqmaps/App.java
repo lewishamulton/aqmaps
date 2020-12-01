@@ -6,8 +6,7 @@ import java.util.Date;
 public class App 
 {
 
-    public static void main( String[] args )
-    {
+    public static void main(String[] args) {
         //assign command line args to vars  
         Date todaysDate = new Date(Integer.parseInt(args[2]), Integer.parseInt(args[1]), Integer.parseInt(args[0])); 
         double initialLat = Double.parseDouble(args[3]); 
@@ -33,11 +32,15 @@ public class App
         System.out.println(dPath.getMovesMade().size());
         for(int i =0; i <dPath.getMovesMade().size(); i++) {
                System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
-               System.out.println(dPath.getMovesMade().get(i).getLongLat()[0]); 
-               System.out.println(dPath.getMovesMade().get(i).getLongLat()[1]); 
+               System.out.println(dPath.getMovesMade().get(i).getCurrLongLat()[0]); 
+               System.out.println(dPath.getMovesMade().get(i).getCurrLongLat()[1]); 
                System.out.println(dPath.getMovesMade().get(i).getDirection().directionDegree); 
                System.out.println("*************"); 
         }
+        
+        var fOutput = new FlightPathOutput(dPath); 
+        fOutput.generateTxtFlightPath();
+        fOutput.generateGeoJsonFile();
         
        
        
