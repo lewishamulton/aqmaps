@@ -15,10 +15,10 @@ import com.google.gson.reflect.TypeToken;
 
 public class SensorsToday {
     private ArrayList<Sensor> todaysSensors = new ArrayList<Sensor>(); 
-    private Date todaysDate; 
+    private MapDate todaysDate; 
     private int portNo; 
 
-    public SensorsToday(Date tDate,int pNo) {
+    public SensorsToday(MapDate tDate,int pNo) {
         todaysDate = tDate; 
         portNo = pNo; 
         //getSensorsForToday

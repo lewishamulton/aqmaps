@@ -9,7 +9,7 @@ public class DroneFlightPath {
     private ArrayList<Sensor> todaysSensors; 
     private ArrayList<Move> movesMade; 
     private ArrayList<Sensor> sensorsVisited = new ArrayList<Sensor>(); 
-    private Date flightDate; 
+    private MapDate flightDate; 
     private double initialLong; 
     private double initialLat; 
     private int portNo; 
@@ -20,7 +20,7 @@ public class DroneFlightPath {
     
     public final double r = 0.0003; 
     
-    public DroneFlightPath(Date flDate, ArrayList<Sensor> tSensors,double iLong, double iLat, int portN) {
+    public DroneFlightPath(MapDate flDate, ArrayList<Sensor> tSensors,double iLong, double iLat, int portN) {
         flightDate = flDate; 
         todaysSensors = tSensors; 
         initialLong = iLong; 
@@ -32,7 +32,7 @@ public class DroneFlightPath {
     public ArrayList<Move> getMovesMade(){
         return movesMade; 
     }
-    public Date getDate() {
+    public MapDate getDate() {
         return flightDate; 
     }
     public ArrayList<Sensor> getSensorsVisited(){
@@ -41,6 +41,8 @@ public class DroneFlightPath {
     public int getPortNo() {
         return portNo; 
     }
+    
+    
     public void calculateFlightPath() {
         
         //gets the number of sensors TO visit 
@@ -74,10 +76,13 @@ public class DroneFlightPath {
             
  
             double[] newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat); 
+            
+            double[][] lineCoords = getCoordsOfLine(currLong,currLat,newCoords[0],newCoords[1]); 
           
             
             //checks if drone move is legal and if not returns new direction of a legal move 
-            d = isALegalDroneMove(d,newCoords[0],newCoords[1],currLong,currLat,nearestSensor); 
+            d = isALegalDroneMove(d,newCoords[0],newCoords[1],currLong,currLat,lineCoords,nearestSensor); 
+           
             newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
             
             //once correct coords have been found they become new long/lat of drone 
@@ -118,7 +123,9 @@ public class DroneFlightPath {
                 Direction d = calculateNewDroneAngle(initialLong,initialLat,currLong,currLat); 
                 double [] newCoords = calculateNewDronePosition(d,returnLocation,currLong,currLat); 
                 
-                d = isALegalDroneMove(d,newCoords[0],newCoords[1],currLong,currLat,returnLocation); 
+                double[][] lineCoords = getCoordsOfLine(currLong,currLat,newCoords[0],newCoords[1]);  
+      
+                d = isALegalDroneMove(d,newCoords[0],newCoords[1],currLong,currLat,lineCoords,returnLocation); 
 
                 var nextMove = new Move(currLong,currLat,newCoords[0],newCoords[1],d,null); 
                 movesMade.add(nextMove); 
@@ -155,8 +162,30 @@ public class DroneFlightPath {
         //lat = y direction 
         return  Math.sqrt((xLong - yLong) * (xLong - yLong) + (xLat - yLat) * (xLat - yLat));
     }
-     
     
+    /*gets the coordinates along the line a drone travels from its old position
+      to its new one*/
+    public double[][] getCoordsOfLine(double currLong, double currLat,double newLong, double newLat) {
+        
+        StraightLine lineOfTravelDrone = new StraightLine(currLong,currLat,newLong,newLat); 
+        double[][] lineCoords = new double[40][2]; 
+
+        if(newLong > currLong) {
+            for(int i = 0; i < 40; i++) {
+                lineCoords[i][0] =  currLong + i*((newLong - currLong)/40); 
+                lineCoords[i][1] =  lineOfTravelDrone.getYCoord(lineCoords[i][0]);         
+            }
+            
+        } else {
+            for(int i = 0; i < 10; i++) {
+                lineCoords[i][0] =  currLong - i*((newLong - currLong)/40); 
+                lineCoords[i][1] =  lineOfTravelDrone.getYCoord(lineCoords[i][0]);
+            }        
+            
+        }
+        
+        return lineCoords;
+    }
     //this method calculates the angle of some multiple of 10 closest to the angle needed for the
     //drone on the same line as the sensor
     public Direction  calculateNewDroneAngle(double sensX, double sensY, double droneX, double droneY) {
@@ -186,20 +215,21 @@ public class DroneFlightPath {
         if (droneSensorAngle >= 360.0) {
             droneSensorAngle = droneSensorAngle - 360.0; 
         }
-        
+        System.out.println(droneSensorAngle); 
         //find nearest multiple of 10 degrees 
         //rounds dronesensorAngle to nearest int 
         var roundedDSAngle = (int)Math.round(droneSensorAngle); 
         var remainder = roundedDSAngle  % 10; 
         int newDroneAngle; 
-        
+        System.out.println(roundedDSAngle); 
         
         if (remainder > 5) {
            newDroneAngle = roundedDSAngle + (10-remainder); 
         } else {
            newDroneAngle = roundedDSAngle - remainder; 
         }
-        
+        //final check to ensure angle is between 0-350 with modulus 
+        newDroneAngle = newDroneAngle %360; 
         return new Direction(newDroneAngle); 
         
     }
@@ -279,22 +309,35 @@ public class DroneFlightPath {
     /*checks if next drone move is legal (doesn't go over any noFlyZones/boundaries) and finds 
      * closest drone move (in terms of direction) if move isn't legal 
      */
-    private Direction isALegalDroneMove(Direction d, double newLong, double newLat, double currLong, double currLat, Sensor nearestSensor) {
+    private Direction isALegalDroneMove(Direction d, double newLong, double newLat, double currLong, double currLat, double[][] lineCoords, Sensor nearestSensor) {
         
       //checks if new position is in a NoFlyZone
-        boolean inNFZ = nFZ.inNoFlyZone(newLong, newLat); 
+        boolean inNFZ = nFZ.inNoFlyZone(newLong, newLat,lineCoords); 
         
+        //sets up a counter to check each possible direction has been counted 
+        var i = 0; 
         //if so changes direction until it is not flying in a NoFlyZone
+       
         while(inNFZ == true) {
             //increments direction by 10 
-            d.setDirection((d.directionDegree+10)); 
+            d.setDirection((d.directionDegree+10)%360);
+            System.out.println(d.directionDegree); 
+            i ++; 
+            if(i > 36) {
+                System.out.println(nearestSensor.getThreeWordsLoc()); 
+                System.out.println(currLong); 
+                System.out.println(currLat); 
+                throw new IllegalArgumentException("No more moves"); 
+            }
             var newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
-            var inBounds = newCoords[0] <= longitudeBounds[1] && newCoords[0] >= longitudeBounds[0] && newCoords[1] <= latitudeBounds[1] && newCoords[1] >= latitudeBounds[0];
+            var inBounds = newCoords[0] < longitudeBounds[1] && newCoords[0] > longitudeBounds[0] && newCoords[1] < latitudeBounds[1] && newCoords[1] > latitudeBounds[0];
             //if its in bounds check its not in a no fly zone otherwise try another direction 
+            
             if(inBounds) {
-                inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1]); 
+                inNFZ = nFZ.inNoFlyZone(newCoords[0], newCoords[1],lineCoords); 
  
             }
+            
         }
         
         return d; 

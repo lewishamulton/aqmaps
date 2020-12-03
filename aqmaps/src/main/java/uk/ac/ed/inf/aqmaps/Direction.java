@@ -6,6 +6,7 @@ public class Direction {
     final int northIsAt = 90; 
     final int southIsAt = 270;
     int directionDegree; 
+    boolean noMoreMoves = false; 
     
     public Direction(int dir) {
         
@@ -15,6 +16,8 @@ public class Direction {
             throw new IllegalArgumentException("Direction " + dir  +" is not valid. Directions must be between 0/350 in multiples of 10"); 
         }
     }
+    
+
     
     public void setDirection(int dir) {
         //direction must be between 0 & 350 in multiples of 10

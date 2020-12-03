@@ -12,13 +12,15 @@ import java.util.List;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
+import com.mapbox.geojson.MultiPolygon;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.turf.TurfJoins;
 
 
 public class NoFlyZone {
-    ArrayList<Polygon> noFlyZones = new ArrayList<Polygon>(); 
+    private ArrayList<Polygon> noFlyZones = new ArrayList<Polygon>(); 
+    private ArrayList<MultiPolygon> noFlyZonesMultiPolygon = new ArrayList<MultiPolygon>(); 
     
     public NoFlyZone() {
        String url = "http://localhost:80/buildings/no-fly-zones.geojson"; 
@@ -39,22 +41,40 @@ public class NoFlyZone {
        
     }
     
+    public ArrayList<Polygon> getNoflyZones(){
+        return noFlyZones; 
+    }
+    
     private void parseGeoJson(String geoString) {
         
         FeatureCollection fc = FeatureCollection.fromJson(geoString); 
         List<Feature> fList = fc.features(); 
-        //goes through each feature to see if polygon
+        //goes through each feature, converting to polygon and adding to ArrayList 
         for(int i = 0; i < fList.size(); i ++) {
-             var g =  fList.get(i).geometry(); 
+             var g =  fList.get(i).geometry();
              noFlyZones.add((Polygon)g); 
         }  
     }
     
-    public boolean inNoFlyZone(double newLong, double newLat) {
+    public boolean inNoFlyZone(double newLong, double newLat, double[][] lineCoords) {
         
-        var droneLoc = Point.fromLngLat(newLong, newLat); 
-        var droneFeature = Feature.fromGeometry((Geometry)droneLoc); 
-        var droneSingleton = FeatureCollection.fromFeature(droneFeature);
+        //creates a feature of the new drone location 
+        var droneNewLoc = Point.fromLngLat(newLong, newLat); 
+        var newLocFeature = Feature.fromGeometry((Geometry)droneNewLoc); 
+        /*creates a feature list of points the drone will go over in the one move
+         * this prevents the drone going over the NoFlyZone in one move as it is checking 
+         * the overall path of the drone and not just if its final location is in the NoFlyZone*/
+        Feature[] featureArray = new Feature[lineCoords.length]; 
+        //eature[] featureArray = new Feature[1]; 
+        featureArray[0] = newLocFeature; 
+       for(int i = 1; i <=(lineCoords.length -1); i ++) {
+            var f = Point.fromLngLat(lineCoords[i][0], lineCoords[i][1]); 
+            featureArray[i] = Feature.fromGeometry((Geometry)f); 
+        }
+        
+        
+        //creates a feature collection of the different flight points a drone will go through to its new location 
+        var droneFlightPoints = FeatureCollection.fromFeatures(featureArray);  
         
         //creates a collection of the NoFlyObjects 
         var noFlyArray = new Feature[noFlyZones.size()]; 
@@ -64,9 +84,11 @@ public class NoFlyZone {
         }
         var noFlyCollection = FeatureCollection.fromFeatures(noFlyArray); 
         
-        //checks if there are any points within the polygons and adds those to a feature collection
-        var anyPoints = TurfJoins.pointsWithinPolygon(droneSingleton,noFlyCollection); 
-        
+        /*checks if there are any points during the drones flight from its old location to the new one 
+         * within the NoFlyZone polygons and adds those to a feature collection */
+        var anyPoints = TurfJoins.pointsWithinPolygon(droneFlightPoints,noFlyCollection); 
+        System.out.println(anyPoints.features().toString()); 
+      
         //if feature collection is empty then drone not in No Fly Zone
        if(anyPoints.features().isEmpty()) {
            return false; 

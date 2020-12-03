@@ -17,7 +17,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class Sensor {
     private double battery; 
-    private double reading; 
+    private String reading; 
     private String location; 
     Words sensorWord; 
     
@@ -26,7 +26,7 @@ public class Sensor {
     
     public Sensor() {
        battery = 0.0; 
-       reading = 0.0; 
+       reading = "0.0"; 
        location = ""; 
     }
     
@@ -59,7 +59,13 @@ public class Sensor {
     }    
     
     public double getSensorReading() {
-        return reading; 
+        var s = 0.0; 
+        try {
+            s= Double.parseDouble(reading);
+        } catch (NumberFormatException e) {
+            return 0.0; 
+        }
+        return s; 
     }
     public double getBatteryReading() {
         return battery; 

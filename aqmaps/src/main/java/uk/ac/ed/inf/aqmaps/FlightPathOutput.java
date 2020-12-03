@@ -94,6 +94,9 @@ public class FlightPathOutput {
        //get arrayList of sensors the drone has visited
        var sensorsVisited = droneFPath.getSensorsVisited(); 
        
+       var inNFZ = new NoFlyZone(); 
+       
+       
        for(int i= 0; i <sensorsVisited.size(); i++) {
            var s = sensorsVisited.get(i); 
            //creates marker for all the sensors for that day
@@ -108,6 +111,19 @@ public class FlightPathOutput {
            fList.add(createLine(m)); 
            
        }
+       var nfz = inNFZ.getNoflyZones(); 
+       for(int i = 0; i <nfz.size(); i++) {
+           var p = nfz.get(i); 
+           Feature f = Feature.fromGeometry(((Geometry)p));
+           f.addNumberProperty("fill-opacity", 0.75);
+           f.addStringProperty("rgb-string", "#ff4000");
+           f.addStringProperty("fill", "#ff4000");
+           fList.add(f); 
+           
+           
+       }
+       
+       
        
        //creates geoJsonString of markers and linestring 
        String geoJsonString = FeatureCollection.fromFeatures(fList).toJson(); 
@@ -149,13 +165,14 @@ public class FlightPathOutput {
        var prevLngLat = m.getPrevLongLat(); 
        
        var pointList = new ArrayList<Point>();
-       var currP = Point.fromLngLat(currLngLat[1], currLngLat[0]); 
-       var prevP = Point.fromLngLat(prevLngLat[1], prevLngLat[0]); 
+       var currP = Point.fromLngLat(currLngLat[0], currLngLat[1]); 
+       var prevP = Point.fromLngLat(prevLngLat[0], prevLngLat[1]); 
        pointList.add(prevP); 
        pointList.add(currP); 
        
        var lineString = LineString.fromLngLats(pointList); 
        var f = Feature.fromGeometry((Geometry)lineString); 
+       
        
        return f; 
            
@@ -185,7 +202,7 @@ public class FlightPathOutput {
        var hexColour = getHexColour(s.getBatteryReading(),s.getSensorReading()); 
        var markerType = getMarker(s.getBatteryReading(),s.getSensorReading()); 
        f.addStringProperty("rgb-string", hexColour);
-       f.addStringProperty("marker-colour", hexColour);
+       f.addStringProperty("marker-color", hexColour);
        f.addStringProperty("marker-symbol", markerType);
        
        
@@ -218,7 +235,6 @@ public class FlightPathOutput {
    
    public String getHexColour(double batteryReading,double sReading) {  
        //checks at first that battery reading is enough to give accurate sensor reading 
-       System.out.println(sReading); 
        if(batteryReading < 10.0) {
            //reading is not enough set HexColour to black to indicate needs new battery
            return "#000000"; 

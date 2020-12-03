@@ -8,7 +8,8 @@ public class App
 
     public static void main(String[] args) {
         //assign command line args to vars  
-        Date todaysDate = new Date(Integer.parseInt(args[2]), Integer.parseInt(args[1]), Integer.parseInt(args[0])); 
+        MapDate tsDate = new MapDate(args[2],args[1], args[0]); 
+        System.out.println(tsDate.getDay()); 
         double initialLat = Double.parseDouble(args[3]); 
         double initialLong = Double.parseDouble(args[4]); 
         System.out.println(initialLat); 
@@ -17,7 +18,7 @@ public class App
         int portNo = Integer.parseInt(args[6]); 
         
         //get sensors for today
-        SensorsToday tSensors = new SensorsToday(todaysDate,portNo); 
+        SensorsToday tSensors = new SensorsToday(tsDate,portNo); 
         ArrayList<Sensor> sensors = tSensors.getTodaysSensors(); 
         
         for(int i=0; i < sensors.size(); i ++) {
@@ -25,18 +26,18 @@ public class App
         }
        
         
-        DroneFlightPath dPath = new DroneFlightPath(todaysDate,sensors,initialLong,initialLat,portNo); 
+        DroneFlightPath dPath = new DroneFlightPath(tsDate,sensors,initialLong,initialLat,portNo); 
         double testLat = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lat; 
         double testLong = dPath.getNearestSensor(initialLong, initialLat, sensors).sensorWord.coordinates.lng; 
         dPath.calculateFlightPath();
         System.out.println(dPath.getMovesMade().size());
-        for(int i =0; i <dPath.getMovesMade().size(); i++) {
+       /* for(int i =0; i <dPath.getMovesMade().size(); i++) {
                System.out.println(dPath.getMovesMade().get(i).getSensorLocation()); 
                System.out.println(dPath.getMovesMade().get(i).getCurrLongLat()[0]); 
                System.out.println(dPath.getMovesMade().get(i).getCurrLongLat()[1]); 
                System.out.println(dPath.getMovesMade().get(i).getDirection().directionDegree); 
                System.out.println("*************"); 
-        }
+        } */
         
         var fOutput = new FlightPathOutput(dPath); 
         fOutput.generateTxtFlightPath();
