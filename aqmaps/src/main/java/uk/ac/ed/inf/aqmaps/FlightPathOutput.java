@@ -34,7 +34,7 @@ public class FlightPathOutput {
             if (outputTxt.createNewFile()) {
               System.out.println("File created: " + outputTxt.getName());
             } else {
-              System.out.println("File already exists.");
+              System.out.println("File(" + outputTxt.getName()+") already exists.");
             }
           } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -67,9 +67,10 @@ public class FlightPathOutput {
            
            try {
             if(currentMove.getSensorLocation() == null) {
-               outputWriter.write(i+","+PrevLongLat[1]+","+PrevLongLat[0]+","+CurrLongLat[1]+","+CurrLongLat[0]);
+                //+1 accounts for zero based indexing 
+               outputWriter.write((i+1)+","+PrevLongLat[1]+","+PrevLongLat[0]+","+CurrLongLat[1]+","+CurrLongLat[0]+"\n");
             } else {
-               outputWriter.write(i+","+PrevLongLat[1]+","+PrevLongLat[0]+","+CurrLongLat[1]+","+CurrLongLat[0]+","+currentMove.getSensorLocation());
+               outputWriter.write((i+1)+","+PrevLongLat[1]+","+PrevLongLat[0]+","+CurrLongLat[1]+","+CurrLongLat[0]+","+currentMove.getSensorLocation()+"\n");
             }
         } catch (IOException e) {
             //error writing to file 

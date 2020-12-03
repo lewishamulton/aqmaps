@@ -65,12 +65,18 @@ public class NoFlyZone {
          * this prevents the drone going over the NoFlyZone in one move as it is checking 
          * the overall path of the drone and not just if its final location is in the NoFlyZone*/
         Feature[] featureArray = new Feature[lineCoords.length]; 
-        //eature[] featureArray = new Feature[1]; 
+        Point[] pointArray = new Point[lineCoords.length]; 
+         
         featureArray[0] = newLocFeature; 
-       for(int i = 1; i <=(lineCoords.length -1); i ++) {
+        pointArray[0] = droneNewLoc; 
+        
+        for(int i = 1; i <=(lineCoords.length -1); i ++) {
+           
+           //gets all the points along the line and turns them into a features
             var f = Point.fromLngLat(lineCoords[i][0], lineCoords[i][1]); 
+            pointArray[i] = f; 
             featureArray[i] = Feature.fromGeometry((Geometry)f); 
-        }
+        } 
         
         
         //creates a feature collection of the different flight points a drone will go through to its new location 
@@ -86,11 +92,26 @@ public class NoFlyZone {
         
         /*checks if there are any points during the drones flight from its old location to the new one 
          * within the NoFlyZone polygons and adds those to a feature collection */
-        var anyPoints = TurfJoins.pointsWithinPolygon(droneFlightPoints,noFlyCollection); 
-        System.out.println(anyPoints.features().toString()); 
+        var anyPoints = TurfJoins.pointsWithinPolygon(droneFlightPoints,noFlyCollection);
+        Polygon[] polyArray = new Polygon[noFlyZones.size()]; 
+        for(int i =0; i < noFlyZones.size(); i++) {
+            polyArray[i] = noFlyZones.get(i); 
+        }
+        
+        Boolean result = true; 
+        for(int i =0; i <polyArray.length; i++) {
+            for(int j =0; j<pointArray.length; j++) {
+              if(TurfJoins.inside(pointArray[j], polyArray[i])) {
+                  result = result && false; 
+                  System.out.println(result); 
+              }
+            }
+        }
       
         //if feature collection is empty then drone not in No Fly Zone
-       if(anyPoints.features().isEmpty()) {
+        System.out.println("AnyPoints Result: " +anyPoints.features().isEmpty()); 
+        System.out.println("Boolean Result: " +result); 
+       if(anyPoints.features().isEmpty() || result == true) {
            return false; 
        } else {
            return true; 

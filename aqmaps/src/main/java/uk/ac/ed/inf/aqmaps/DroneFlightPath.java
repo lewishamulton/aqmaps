@@ -1,8 +1,6 @@
 package uk.ac.ed.inf.aqmaps;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class DroneFlightPath {
     
@@ -126,7 +124,10 @@ public class DroneFlightPath {
                 double[][] lineCoords = getCoordsOfLine(currLong,currLat,newCoords[0],newCoords[1]);  
       
                 d = isALegalDroneMove(d,newCoords[0],newCoords[1],currLong,currLat,lineCoords,returnLocation); 
+                
+                newCoords = calculateNewDronePosition(d,returnLocation,currLong,currLat); 
 
+                
                 var nextMove = new Move(currLong,currLat,newCoords[0],newCoords[1],d,null); 
                 movesMade.add(nextMove); 
                 
@@ -168,17 +169,17 @@ public class DroneFlightPath {
     public double[][] getCoordsOfLine(double currLong, double currLat,double newLong, double newLat) {
         
         StraightLine lineOfTravelDrone = new StraightLine(currLong,currLat,newLong,newLat); 
-        double[][] lineCoords = new double[40][2]; 
+        double[][] lineCoords = new double[80][2]; 
 
         if(newLong > currLong) {
-            for(int i = 0; i < 40; i++) {
-                lineCoords[i][0] =  currLong + i*((newLong - currLong)/40); 
+            for(int i = 0; i < 80; i++) {
+                lineCoords[i][0] =  currLong + i*((newLong - currLong)/80); 
                 lineCoords[i][1] =  lineOfTravelDrone.getYCoord(lineCoords[i][0]);         
             }
             
         } else {
-            for(int i = 0; i < 10; i++) {
-                lineCoords[i][0] =  currLong - i*((newLong - currLong)/40); 
+            for(int i = 0; i < 80; i++) {
+                lineCoords[i][0] =  currLong - i*((currLong - newLong)/80); 
                 lineCoords[i][1] =  lineOfTravelDrone.getYCoord(lineCoords[i][0]);
             }        
             
@@ -215,13 +216,11 @@ public class DroneFlightPath {
         if (droneSensorAngle >= 360.0) {
             droneSensorAngle = droneSensorAngle - 360.0; 
         }
-        System.out.println(droneSensorAngle); 
         //find nearest multiple of 10 degrees 
         //rounds dronesensorAngle to nearest int 
         var roundedDSAngle = (int)Math.round(droneSensorAngle); 
         var remainder = roundedDSAngle  % 10; 
         int newDroneAngle; 
-        System.out.println(roundedDSAngle); 
         
         if (remainder > 5) {
            newDroneAngle = roundedDSAngle + (10-remainder); 
@@ -296,7 +295,7 @@ public class DroneFlightPath {
     public boolean inRangeSensor(double newLong, double newLat, Sensor cSensor) {
         
         var sensorLong = cSensor.sensorWord.coordinates.lng; 
-        var  sensorLat = cSensor.sensorWord.coordinates.lat; 
+        var sensorLat = cSensor.sensorWord.coordinates.lat; 
         
         double range = calculateEuclidDist(newLong,newLat,sensorLong,sensorLat); 
         if(range < 0.0002) {
@@ -321,15 +320,15 @@ public class DroneFlightPath {
         while(inNFZ == true) {
             //increments direction by 10 
             d.setDirection((d.directionDegree+10)%360);
+            var newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
+            lineCoords = getCoordsOfLine(currLong, currLat, newCoords[0], newCoords[1]); 
             System.out.println(d.directionDegree); 
             i ++; 
             if(i > 36) {
-                System.out.println(nearestSensor.getThreeWordsLoc()); 
-                System.out.println(currLong); 
-                System.out.println(currLat); 
-                throw new IllegalArgumentException("No more moves"); 
+                System.out.println("No more moves for this position, regress to previous move" ); 
+                throw new IllegalArgumentException("no more moves"); 
             }
-            var newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
+            newCoords = calculateNewDronePosition(d,nearestSensor,currLong,currLat);
             var inBounds = newCoords[0] < longitudeBounds[1] && newCoords[0] > longitudeBounds[0] && newCoords[1] < latitudeBounds[1] && newCoords[1] > latitudeBounds[0];
             //if its in bounds check its not in a no fly zone otherwise try another direction 
             
