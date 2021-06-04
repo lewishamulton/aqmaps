@@ -9,4 +9,6 @@ This project makes use of Java, Java 11 Http Client, JSON and GeoJSON Parsing.
 
 -DroneFlightPath.java contains the implementation of the algorithm and as such returns the drone's flightpath 
 
+-The report contains documentation on all classes within the project and my design decisions.
+
 Any questions please email s1807298@ed.ac.uk 
