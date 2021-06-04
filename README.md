@@ -6,6 +6,7 @@ This project is an API with an algorithm that takes in an initial long/lat locat
 This project makes use of Java, Java 11 Http Client, JSON and GeoJSON Parsing. 
 
 -App.java sets up necessary objects and launches the command line procedure. It is 'main()' effectively
+
 -DroneFlightPath.java contains the implementation of the algorithm and as such returns the drone's flightpath 
 
 Any questions please email s1807298@ed.ac.uk 
